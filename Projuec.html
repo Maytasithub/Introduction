@@ -34,7 +34,7 @@
       controls.target.set(0, 0.5, 0);
       controls.enableDamping = true;
 
-      // ✅ โหลดโมเดล GLB
+    
       const clickable = [];
       const gltfLoader = new THREE.GLTFLoader();
       gltfLoader.load(
@@ -52,7 +52,7 @@
         }
       );
 
-      // โหลด EXR พื้นหลัง
+   
       const exrLoader = new THREE.EXRLoader();
       exrLoader.load(
         './narrow_moonlit_road_4k.exr',
@@ -63,7 +63,7 @@
         }
       );
 
-      // แสง
+  
       const dirLight = new THREE.DirectionalLight(0xffffff, 1);
       dirLight.position.set(5, 10, 7);
       scene.add(dirLight);
