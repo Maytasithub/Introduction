@@ -2,52 +2,23 @@
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <title>Projuec</title>
+  <title>Projue</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
-
+    html, body { height: 100%; margin: 0; overflow: hidden; font-family: sans-serif; }
     canvas { display: block; }
 
     #popupOverlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      z-index: 10;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9); display: none; z-index: 10;
     }
 
     #popupImage {
-      position: absolute;
-      top: 50%;
-      left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      display: none;
-      max-width: 80%;
-      max-height: 80%;
-      border: 2px solid white;
-      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+      display: none; max-width: 80%; max-height: 80%;
+      border: 2px solid white; box-shadow: 0 0 20px rgba(0,0,0,0.7);
       z-index: 11;
-    }
-
-    #popupText {
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: white;
-      font-size: 24px;
-      z-index: 12;
-      display: none;
-      text-shadow: 0 0 5px black;
     }
   </style>
 
@@ -59,8 +30,7 @@
 <body>
 
   <div id="popupOverlay"></div>
-  <img id="popupImage" src="" alt="Popup" />
-  <div id="popupText"></div>
+  <img id="popupImage" src="" alt="Jump Scare" />
 
   <script>
     (() => {
@@ -77,68 +47,62 @@
       controls.enableDamping = true;
 
       const clickable = [];
-
       const gltfLoader = new THREE.GLTFLoader();
 
-      // 🌳 โมเดลที่ 1: Maple Tree
-      gltfLoader.load('./toon_tree_02.glb',
-        function (gltf) {
-          const model = gltf.scene;
-          model.position.set(0.9, -0.2, -2);
-          model.scale.set(5, 5, 5);
-          model.userData = {
-            image: './maple_image.jpg',
-            name: 'ต้นเมเปิ้ล (Maple Tree)'
-          };
-          scene.add(model);
-          clickable.push(model);
-        },
-        undefined,
-        function (error) {
-          console.error('GLB load error:', error);
-        }
-      );
-
-      // 🧍 โมเดลที่ 2: MyName
-      gltfLoader.load('./myname.glb',
-        function (gltf) {
-          const model = gltf.scene;
-          model.position.set(1, 0, 2);
-          model.scale.set(1, 1, 1);
-          model.userData = {
-            image: './myname_image.jpg',
-            name: 'ชื่อของฉัน (My Name)'
-          };
-          scene.add(model);
-          clickable.push(model);
-        },
-        undefined,
-        function (error) {
-          console.error('GLB load error:', error);
-        }
-      );
-
-      // 🌌 EXR พื้นหลัง
-      const exrLoader = new THREE.EXRLoader();
-      exrLoader.load('./narrow_moonlit_road_4k.exr', function (texture) {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.background = texture;
-        scene.environment = texture;
+     
+      gltfLoader.load('./toon_tree_02.glb', gltf => {
+        const model = gltf.scene;
+        model.position.set(0.9, -0.2, -2);
+        model.scale.set(5,5,5);
+        model.userData = { image: './maple_image.jpg', name: 'ต้นเมเปิ้ล (Maple Tree)' };
+        scene.add(model);
+        clickable.push(model);
       });
 
-      // 💡 เพิ่มแสงให้ดูดีขึ้น
-      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-      hemiLight.position.set(0, 20, 0);
-      scene.add(hemiLight);
+      gltfLoader.load('./dearname.glb', gltf => {
+        const model = gltf.scene;
+        model.position.set(-5, -0.3, 5);
+        model.scale.set(1,1,1);
+        model.rotation.y = Math.PI;
+        model.userData = { name: 'โมเดล Name (Name.glb)', jumpScare: true, scareShown: false };
+        scene.add(model);
+        clickable.push(model);
+      });
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-      dirLight.position.set(3, 10, 5);
+      
+      gltfLoader.load('./fool.glb', gltf => {
+        const model = gltf.scene;
+        model.position.set(1,0,2);
+        model.scale.set(1,1,1);
+        model.userData = { image: './myname_image.jpg', name: 'ชื่อของฉัน (My Name)' };
+        scene.add(model);
+        clickable.push(model);
+      });
+
+      
+      const exrLoader = new THREE.EXRLoader();
+      exrLoader.load('./narrow_moonlit_road_4k.exr', tex => {
+        tex.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = tex;
+        scene.environment = tex;
+      });
+
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.5));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      dirLight.position.set(3,10,5);
       scene.add(dirLight);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-      scene.add(ambientLight);
+     
+      const discoLight = new THREE.SpotLight(0xff0000, 4, 15, Math.PI/2, 0.8, 2);
+      discoLight.position.set(2, 4, 2);
+      discoLight.target.position.set(1, 0, 2); 
+      scene.add(discoLight);
+      scene.add(discoLight.target);
 
-      // 🔍 Raycaster สำหรับคลิก
+      let hue = 0;
+
+     
       const raycaster = new THREE.Raycaster();
       const mouse = new THREE.Vector2();
 
@@ -148,28 +112,52 @@
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(clickable, true);
 
-        if (intersects.length > 0) {
+        if(intersects.length > 0) {
           const object = intersects[0].object;
           const rootModel = getRootModel(object);
-          if (rootModel.userData) {
+          if(rootModel.userData.jumpScare) {
+            showJumpScare();
+          } else if(rootModel.userData.image) {
             showPopupImage(rootModel.userData.image, rootModel.userData.name);
           }
         }
       });
 
       function getRootModel(obj) {
-        while (obj.parent && !clickable.includes(obj)) {
-          obj = obj.parent;
-        }
+        while(obj.parent && !clickable.includes(obj)) obj = obj.parent;
         return obj;
       }
 
+      
       function loop() {
         controls.update();
+
+        
+        clickable.forEach(model => {
+          if(model.userData.name === 'โมเดล Name (Name.glb)') {
+            model.rotation.y += 0.003;
+          }
+        });
+
+       
+        hue += 0.01;
+        if(hue > 1) hue = 0;
+        discoLight.color.setHSL(hue, 1, 0.5);
+
+        discoLight.position.x = Math.sin(Date.now() * 0.001) * 3;
+        discoLight.position.z = Math.cos(Date.now() * 0.001) * 3;
+
         renderer.render(scene, camera);
         requestAnimationFrame(loop);
       }
+
       loop();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+      });
     })();
   </script>
 </body>
